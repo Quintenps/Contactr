@@ -6,7 +6,6 @@ using Contactr.Persistence.Repositories;
 using Contactr.Persistence.Repositories.Interfaces;
 using Contactr.Services.AuthService;
 using Contactr.Services.CardService;
-using Contactr.Services.Factories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

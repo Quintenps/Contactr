@@ -11,8 +11,6 @@ using Contactr.Models.Authentication;
 using Contactr.Models.Cards;
 using Contactr.Models.Enums;
 using Contactr.Persistence;
-using Contactr.Persistence.Repositories.Interfaces;
-using Contactr.Services.Factories;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
