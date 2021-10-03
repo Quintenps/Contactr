@@ -10,7 +10,7 @@ namespace Contactr.Persistence.Repositories
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected readonly DbSet<TEntity> mDbSet;
+        private readonly DbSet<TEntity> mDbSet;
 
         protected IUnitOfWork mUnitOfWork;
 

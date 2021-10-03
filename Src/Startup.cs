@@ -6,6 +6,7 @@ using Contactr.Persistence.Repositories;
 using Contactr.Persistence.Repositories.Interfaces;
 using Contactr.Services.AuthService;
 using Contactr.Services.CardService;
+using Contactr.Services.GoogleServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,8 +14,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 namespace Contactr
 {
@@ -31,13 +34,12 @@ namespace Contactr
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<AppDbContext>(opt =>
-                opt.UseSqlite("Data source=Contactr.db"));
+                opt.UseSqlServer(Configuration.GetValue<string>("Databases:Contactr")));
             
             services.AddAutoMapper(typeof(Startup));
-            
+
             services.AddControllers()
-                .AddNewtonsoftJson()
-                .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = true);
+                .AddNewtonsoftJson();
             
             services.AddAuthentication(option =>
                 {
@@ -64,8 +66,11 @@ namespace Contactr
             services
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<ICardService, CardService>()
+                .AddScoped<IConnectionService, ConnectionService>()
                 .AddScoped<IUserFactory, UserFactory>()
                 .AddScoped<ICardFactory, CardFactory>()
+                .AddScoped<IConnectionFactory, ConnectionFactory>()
+                .AddScoped<IPeopleServiceFactory, PeopleServiceFactory>()
                 .AddScoped<IAuthenticationProviderFactory, AuthenticationProviderFactory>();
 
             // Repositories
@@ -84,6 +89,10 @@ namespace Contactr
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            using (var scope = app.ApplicationServices.CreateScope())
+            using (var context = scope.ServiceProvider.GetService<AppDbContext>())
+                context?.Database.Migrate();
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -27,7 +27,7 @@ namespace Contactr.Controllers
         public async Task<ActionResult> Login(GoogleLoginDto googleLoginDto)
         {
             var googlePayload = await _authService.VerifyGoogleToken(googleLoginDto);
-            var jwt = await _authService.Login(googlePayload);
+            var jwt = await _authService.Login(googlePayload, googleLoginDto.RefreshToken);
             return Ok(jwt);
         }
     }

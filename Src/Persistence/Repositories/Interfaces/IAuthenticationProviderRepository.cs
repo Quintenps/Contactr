@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Contactr.Models.Authentication;
+﻿using Contactr.Models.Authentication;
 
 namespace Contactr.Persistence.Repositories.Interfaces
 {

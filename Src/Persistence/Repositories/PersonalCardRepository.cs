@@ -1,4 +1,6 @@
-﻿using Contactr.Models.Cards;
+﻿using System;
+using System.Linq;
+using Contactr.Models.Cards;
 using Contactr.Persistence.Repositories.Interfaces;
 
 namespace Contactr.Persistence.Repositories

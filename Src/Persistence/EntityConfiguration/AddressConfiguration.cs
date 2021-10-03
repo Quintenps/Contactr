@@ -8,6 +8,7 @@ namespace Contactr.Persistence.EntityConfiguration
     {
         public void Configure(EntityTypeBuilder<Address> builder)
         {
+            // Has no relations
         }
     }
 }

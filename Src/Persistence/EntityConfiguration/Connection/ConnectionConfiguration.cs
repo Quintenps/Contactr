@@ -7,9 +7,8 @@ namespace Contactr.Persistence.EntityConfiguration.Connection
     {
         public void Configure(EntityTypeBuilder<Models.Connection.Connection> builder)
         {
-            builder.HasOne(c => c.SenderUser).WithMany();
-            builder.HasOne(c => c.ReceiverUser).WithMany();
-            // builder.Property(c => c.Resource).
+            builder.HasOne(c => c.SenderUser).WithMany().OnDelete(DeleteBehavior.NoAction);
+            builder.HasOne(c => c.ReceiverUser).WithMany().OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

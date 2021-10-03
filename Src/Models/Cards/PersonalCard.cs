@@ -7,7 +7,7 @@ namespace Contactr.Models.Cards
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public virtual User User { get; set; }
+        public virtual User User { get; set; } = null!;
         public string? Firstname { get; set; }
         public string? Lastname { get; set; }
         public Genders? Gender { get; set; }

@@ -2,6 +2,6 @@
 {
     public class Google : Resource
     {
-      public string ETag { get; set; }
+      public string ETag { get; set; } = null!;
     }
 }

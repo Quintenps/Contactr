@@ -1,4 +1,5 @@
-﻿using Contactr.Models.Cards;
+﻿using Contactr.Models;
+using Contactr.Models.Cards;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,7 +9,7 @@ namespace Contactr.Persistence.EntityConfiguration.Cards
     {
         public void Configure(EntityTypeBuilder<PersonalCard> builder)
         {
-            builder.HasOne(pc => pc.User).WithOne();
+            builder.HasOne(pc => pc.User);
         }
     }
 }

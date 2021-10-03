@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Contactr.DTOs;
 
 namespace Contactr.Models.Cards
 {
@@ -6,11 +8,11 @@ namespace Contactr.Models.Cards
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public virtual User User { get; set; }
-        public Guid? CompanyId { get; set; }
-        public virtual Company Company { get; set; }
-        public Guid? AddressId { get; set; }
-        public virtual Address Address { get; set; }
+        public User User { get; set; } = null!;
+        public Guid CompanyId { get; set; }
+        public virtual Company Company { get; set; } = null!;
+        public Guid AddressId { get; set; }
+        public virtual Address Address { get; set; } = null!;
         public string? JobTitle { get; set; }
         public string? Email { get; set; }
         public string? Phone { get; set; }

@@ -7,6 +7,6 @@ namespace Contactr.Services.AuthService
     public interface IAuthService
     {
         public Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(GoogleLoginDto externalAuth);
-        public Task<string> Login(GoogleJsonWebSignature.Payload payload);
+        public Task<string> Login(GoogleJsonWebSignature.Payload payload, string refreshToken);
     }
 }

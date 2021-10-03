@@ -13,5 +13,14 @@ namespace Contactr.Factories
                 UserId = userId
             };
         }
+
+        public BusinessCard CreateBusinessCard(Guid userId)
+        {
+            return new BusinessCard()
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId
+            };
+        }
     }
 }

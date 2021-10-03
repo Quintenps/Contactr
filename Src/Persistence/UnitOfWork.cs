@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AutoMapper;
 using Contactr.Persistence.Repositories;
 using Contactr.Persistence.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,7 @@ namespace Contactr.Persistence
         public IBusinessCardRepository BusinessCardRepository { get; }
         public IAuthenticationProviderRepository AuthenticationProviderRepository { get; }
 
-        public UnitOfWork(AppDbContext context, IMapper mapper, ILogger<UnitOfWork> logger)
+        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
             Context = context;
             Logger = logger;
@@ -32,17 +31,7 @@ namespace Contactr.Persistence
             BusinessCardRepository = new BusinessCardRepository(this);
             AuthenticationProviderRepository = new AuthenticationProviderRepository(this);
         }
-
-        public void Dispose()
-        {
-            if (Context != null)
-            {
-                Context.Dispose();
-                Context = null;
-            }
-        }
-
-
+        
         public async Task Save()
         {
             try

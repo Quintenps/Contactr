@@ -4,6 +4,5 @@ namespace Contactr.Persistence.Repositories.Interfaces
 {
     public interface IPersonalCardRepository : IRepository<PersonalCard>
     {
-        
     }
 }

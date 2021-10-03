@@ -1,12 +1,13 @@
 using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using AutoMapper;
 using Contactr.DTOs.Cards;
 using Contactr.Services.CardService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Contactr.Controllers
+namespace Contactr.Controllers.Cards
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -31,10 +32,10 @@ namespace Contactr.Controllers
         }
         
         [HttpPut]
-        public ActionResult Put(PersonalCardDto personalCardDto)
+        public async Task<ActionResult> Put(PersonalCardDto personalCardDto)
         {
             Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
-            _cardService.UpdatePersonalCard(userId, personalCardDto);
+            await _cardService.UpdatePersonalCard(userId, personalCardDto);
 
             return Ok();
         }

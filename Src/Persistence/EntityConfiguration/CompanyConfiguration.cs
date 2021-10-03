@@ -9,7 +9,12 @@ namespace Contactr.Persistence.EntityConfiguration
         public void Configure(EntityTypeBuilder<Company> builder)
         {
             builder.HasIndex(c => c.Name).IsUnique();
-            builder.HasMany(c => c.Addresses).WithOne(c => c.Company);
+            builder
+                .HasMany(c => c.Addresses)
+                .WithOne(a => a.Company)
+                .HasForeignKey(a => a.CompanyId)
+                .HasPrincipalKey(c => c.Id)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

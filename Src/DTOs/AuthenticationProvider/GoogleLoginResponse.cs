@@ -2,11 +2,11 @@
 {
     public class GoogleLoginResponse
     {
-        public string Sub { get; set; }
-        public string Picture { get; set; }
-        public string Email { get; set; }
-        public string Name { get; set; }
-        public string GivenName { get; set; }
-        public string FamilyName { get; set; }
+        public string Sub { get; set; } = null!;
+        public string Picture { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public string GivenName { get; set; } = null!;
+        public string FamilyName { get; set; } = null!;
     }
 }
