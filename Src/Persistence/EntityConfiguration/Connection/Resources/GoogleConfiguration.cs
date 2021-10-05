@@ -1,5 +1,4 @@
-﻿using Contactr.Models.Connection.Resources;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Contactr.Persistence.EntityConfiguration.Connection.Resources

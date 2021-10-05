@@ -50,10 +50,10 @@ namespace Contactr.Services.CardService
             card.Phone = businessCardDto.Phone;
         }
 
-        private void CheckIfBusinessCardExists(BusinessCard businessCard)
+        private static void CheckIfBusinessCardExists(BusinessCard businessCard)
         {
             if (businessCard is null)
-                throw new ArgumentException($"Business card {businessCard.Id} not found");
+                throw new ArgumentException("Business card not found");
         }
         
         public BusinessCard? GetBusinessCard(Guid userId, Guid cardId)

@@ -15,7 +15,7 @@ namespace Contactr.Persistence.Repositories
 
         public IEnumerable<BusinessCard> GetAll(Guid userId)
         {
-            return mUnitOfWork.Context.BusinessCards
+            return MUnitOfWork.Context.BusinessCards
                 .Where(bc => bc.UserId.Equals(userId))
                 .Include(bc => bc.Company)
                 .Include(bc => bc.Address)
@@ -24,7 +24,7 @@ namespace Contactr.Persistence.Repositories
         
         public BusinessCard? Get(Guid userId, Guid cardId)
         {
-            return mUnitOfWork.Context.BusinessCards
+            return MUnitOfWork.Context.BusinessCards
                 .Where(bc => bc.UserId.Equals(userId) && bc.Id.Equals(cardId))
                 .Include(bc => bc.Company)
                 .Include(bc => bc.Address)

@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 
 namespace Contactr.Services.GoogleServices
 {
     public interface ISyncService
     {
-        public Task Synchronize();
+        public void Synchronize(Guid userId);
     }
 }

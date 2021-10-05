@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Contactr.Factories;
 using Contactr.Factories.Interfaces;
 using Contactr.Models;
 using Contactr.Models.Authentication;
@@ -59,27 +58,27 @@ namespace Contractr.Tests.Services
         public void Test_ConstructorFunction_throws_Exception()
         {
             Should.Throw<ArgumentNullException>(() => new AuthService(
-                null, _unitOfWorkMock.Object, _loggerMock.Object, _userFactoryMock.Object, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
+                null!, _unitOfWorkMock.Object, _loggerMock.Object, _userFactoryMock.Object, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
             ));
 
             Should.Throw<ArgumentNullException>(() => new AuthService(
-                _configurationMock.Object, null, _loggerMock.Object, _userFactoryMock.Object, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
+                _configurationMock.Object, null!, _loggerMock.Object, _userFactoryMock.Object, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
             ));
 
             Should.Throw<ArgumentNullException>(() => new AuthService(
-                _configurationMock.Object, _unitOfWorkMock.Object, null, _userFactoryMock.Object, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
+                _configurationMock.Object, _unitOfWorkMock.Object, null!, _userFactoryMock.Object, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
             ));
 
             Should.Throw<ArgumentNullException>(() => new AuthService(
-                _configurationMock.Object, _unitOfWorkMock.Object, _loggerMock.Object, null, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
+                _configurationMock.Object, _unitOfWorkMock.Object, _loggerMock.Object, null!, _cardFactoryMock.Object, _authenticationProviderFactoryMock.Object
             ));
 
             Should.Throw<ArgumentNullException>(() => new AuthService(
-                _configurationMock.Object, _unitOfWorkMock.Object, _loggerMock.Object, _userFactoryMock.Object, null, _authenticationProviderFactoryMock.Object
+                _configurationMock.Object, _unitOfWorkMock.Object, _loggerMock.Object, _userFactoryMock.Object, null!, _authenticationProviderFactoryMock.Object
             ));
 
             Should.Throw<ArgumentNullException>(() => new AuthService(
-                _configurationMock.Object, _unitOfWorkMock.Object, _loggerMock.Object, _userFactoryMock.Object, _cardFactoryMock.Object, null
+                _configurationMock.Object, _unitOfWorkMock.Object, _loggerMock.Object, _userFactoryMock.Object, _cardFactoryMock.Object, null!
             ));
         }
 

@@ -13,10 +13,12 @@ namespace Contactr.Controllers
     public class ConnectionController : ControllerBase
     {
         private readonly IConnectionService _connectionService;
+        private readonly ISyncService _syncService;
 
-        public ConnectionController(IConnectionService connectionService)
+        public ConnectionController(IConnectionService connectionService, ISyncService syncService)
         {
             _connectionService = connectionService ?? throw new ArgumentNullException(nameof(connectionService));
+            _syncService = syncService ?? throw new ArgumentNullException(nameof(syncService));
         }
 
         [HttpGet]
@@ -24,6 +26,13 @@ namespace Contactr.Controllers
         {
             Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
             await _connectionService.ReadGoogleContacts(userId);
+        }
+
+        [HttpGet("2")]
+        public async Task Test2()
+        {
+            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            _syncService.Synchronize(userId);
         }
     }
 }

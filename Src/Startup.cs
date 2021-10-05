@@ -6,6 +6,7 @@ using Contactr.Persistence.Repositories;
 using Contactr.Persistence.Repositories.Interfaces;
 using Contactr.Services.AuthService;
 using Contactr.Services.CardService;
+using Contactr.Services.DatastoreService;
 using Contactr.Services.GoogleServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -14,10 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 
 namespace Contactr
 {
@@ -62,19 +61,23 @@ namespace Contactr
             
             // Services
             services.AddHttpClient();
-
+            
             services
+                // Services
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<ICardService, CardService>()
+                .AddScoped<ISyncService, SyncService>()
+                .AddScoped<IDatastoreService, DatastoreService>()
                 .AddScoped<IConnectionService, ConnectionService>()
+                
+                // Factories
                 .AddScoped<IUserFactory, UserFactory>()
                 .AddScoped<ICardFactory, CardFactory>()
                 .AddScoped<IConnectionFactory, ConnectionFactory>()
                 .AddScoped<IPeopleServiceFactory, PeopleServiceFactory>()
-                .AddScoped<IAuthenticationProviderFactory, AuthenticationProviderFactory>();
-
-            // Repositories
-            services
+                .AddScoped<IAuthenticationProviderFactory, AuthenticationProviderFactory>()
+                
+                // Repositories
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IUserRepository, UserRepository>()
                 .AddScoped<IAddressRepository, AddressRepository>()

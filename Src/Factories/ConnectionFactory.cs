@@ -8,22 +8,23 @@ namespace Contactr.Factories
 {
     public class ConnectionFactory : IConnectionFactory
     {
-        private Resource CreateGoogleResource(string ETag)
+        private Resource CreateGoogleResource(string eTag, string resourceName)
         {
             return new Contactr.Models.Connection.Resources.Google
             {
-                ETag = ETag,
+                ETag = eTag,
+                ResourceName = resourceName,
                 Provider = SyncProviders.Google
             };
         }
         
-        public Connection Create(Guid receiverUserId, Guid senderUserId, string ETag)
+        public Connection Create(Guid receiverUserId, Guid senderUserId, string eTag, string resourceName)
         {
             return new Connection()
             {
                 ReceiverUserId = receiverUserId,
                 SenderUserId = senderUserId,
-                Resource = CreateGoogleResource(ETag),
+                Resource = CreateGoogleResource(eTag, resourceName),
                 CreatedAt = DateTime.Now,
                 SynchronizedAt = null
             };

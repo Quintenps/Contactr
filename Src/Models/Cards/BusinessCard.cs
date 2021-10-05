@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Contactr.DTOs;
 
 namespace Contactr.Models.Cards
 {

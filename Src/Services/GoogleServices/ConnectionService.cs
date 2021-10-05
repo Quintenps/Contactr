@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Contactr.Factories.Interfaces;
-using Contactr.Models.Authentication;
 using Contactr.Models.Cards;
 using Contactr.Models.Connection;
-using Contactr.Models.Enums;
+using Contactr.Models.Connection.Resources;
 using Contactr.Persistence;
 using Contactr.Persistence.Repositories.Interfaces;
 using Google.Apis.PeopleService.v1;
@@ -18,30 +17,23 @@ namespace Contactr.Services.GoogleServices
     /// <summary>
     /// Service that is used for reading user's Google contacts and creating <see cref="Connection"/>'s
     /// </summary>
-    public class ConnectionService : IConnectionService
+    public class ConnectionService : GoogleService, IConnectionService
     {
-        private readonly IPeopleServiceFactory _peopleServiceFactory;
         private readonly IConnectionFactory _connectionFactory;
-        private readonly IAuthenticationProviderRepository _authenticationProviderRepository;
-        private readonly IDataProtector _dataProtector;
         private readonly IPersonalCardRepository _personalCardRepository;
         private readonly IConnectionRepository _connectionRepository;
         private readonly ILogger<ConnectionService> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        private static string PersonFields = "names,emailAddresses,phoneNumbers";
-
-        public ConnectionService(IPeopleServiceFactory peopleServiceFactory, IDataProtectionProvider dataProtectionProvider, ILogger<ConnectionService> logger, IAuthenticationProviderRepository authenticationProviderRepository, IUnitOfWork unitOfWork,
-            IPersonalCardRepository personalCardRepository, IConnectionRepository connectionRepository, IConnectionFactory connectionFactory)
+        public ConnectionService(ILogger<GoogleService> googleServiceLogger, IDataProtectionProvider dataProtectionProvider, IPeopleServiceFactory peopleServiceFactory, IAuthenticationProviderRepository authenticationProviderRepository,
+            IConnectionFactory connectionFactory, IPersonalCardRepository personalCardRepository, IConnectionRepository connectionRepository, ILogger<ConnectionService> connectionServiceLogger, IUnitOfWork unitOfWork) : base(googleServiceLogger, dataProtectionProvider,
+            peopleServiceFactory, authenticationProviderRepository)
         {
-            _peopleServiceFactory = peopleServiceFactory ?? throw new ArgumentNullException(nameof(peopleServiceFactory));
-            _authenticationProviderRepository = authenticationProviderRepository ?? throw new ArgumentNullException(nameof(authenticationProviderRepository));
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
             _personalCardRepository = personalCardRepository ?? throw new ArgumentNullException(nameof(personalCardRepository));
             _connectionRepository = connectionRepository ?? throw new ArgumentNullException(nameof(connectionRepository));
-            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-            _dataProtector = dataProtectionProvider.CreateProtector(DataProtectionKeys.AuthProviderRefreshToken.ToString()) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = connectionServiceLogger ?? throw new ArgumentNullException(nameof(connectionServiceLogger));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
         /// <summary>
@@ -49,13 +41,14 @@ namespace Contactr.Services.GoogleServices
         /// </summary>
         /// <param name="matches"></param>
         /// <param name="userId"></param>
-        private async Task CreateConnection(Dictionary<Guid, string> matches, Guid userId)
+        private async Task CreateConnection(Dictionary<Guid, Resource> matches, Guid userId)
         {
             _logger.LogInformation($"Creating {matches.Count} matches for userId {userId}");
             foreach (var pair in matches)
             {
                 _logger.LogInformation($"Creating connection from userId {pair.Key} to {userId}");
-                var connection = _connectionFactory.Create(userId, pair.Key, pair.Value);
+                var resource = (Models.Connection.Resources.Google) pair.Value;
+                var connection = _connectionFactory.Create(userId, pair.Key, resource.ETag, resource.ResourceName);
                 _unitOfWork.ConnectionRepository.Add(connection);
             }
             await _unitOfWork.Save();
@@ -67,11 +60,11 @@ namespace Contactr.Services.GoogleServices
         /// <param name="contacts"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        private async Task<Dictionary<Guid, string>> Match(PeopleResource.ConnectionsResource.ListRequest contacts, Guid userId)
+        private async Task<Dictionary<Guid, Resource>> Match(PeopleResource.ConnectionsResource.ListRequest contacts, Guid userId)
         {
             string pageToken = "";
-            var matchedPeopleIds = new Dictionary<Guid, string>();
-            var matchedPeopleDbIds = _connectionRepository.Find(c => c.ReceiverUserId.Equals(userId)).ToDictionary(c => c.ReceiverUserId, c => c.ReceiverUserId);
+            var matchedPeopleIds = new Dictionary<Guid, Resource>();
+            var matchedPeopleDbIds = _connectionRepository.Find(c => c.ReceiverUserId.Equals(userId)).ToDictionary(c => c.ReceiverUserId, c => c.Resource);
             do
             {
                 if (pageToken != "")
@@ -99,7 +92,12 @@ namespace Contactr.Services.GoogleServices
                         {
                             if (phoneNumber.Value.Equals(card.Phone))
                             {
-                                matchedPeopleIds.Add(card.UserId, contact.ETag);
+                                var resource = new Contactr.Models.Connection.Resources.Google
+                                {
+                                    ETag = contact.ETag,
+                                    ResourceName = contact.ResourceName
+                                };
+                                matchedPeopleIds.Add(card.UserId, resource);
                             }
                         }
                     }
@@ -113,18 +111,6 @@ namespace Contactr.Services.GoogleServices
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
         
-        private AuthenticationProvider? GetAuthenticationProvider(Guid userId)
-        {
-            var authenticationProvider = _authenticationProviderRepository.SingleOrDefault(ap => ap.UserId.Equals(userId));
-            if (authenticationProvider is null)
-            {
-                _logger.LogError($"Authentication provider not found for userId {userId}");
-                throw new ArgumentException("Authenticationprovider not found");
-            }
-
-            return authenticationProvider;
-        }
-        
         /// <summary>
         /// Reads out the user's Google Contact phonebook
         /// </summary>
@@ -133,11 +119,7 @@ namespace Contactr.Services.GoogleServices
         /// <exception cref="ArgumentException"></exception>
         public async Task ReadGoogleContacts(Guid userId)
         {
-            var authenticationProvider = GetAuthenticationProvider(userId);
-            var service = _peopleServiceFactory.Create(_dataProtector.Unprotect(authenticationProvider.RefreshToken));
-            PeopleResource.ConnectionsResource.ListRequest peopleRequest = service.People.Connections.List("people/me");
-            peopleRequest.PersonFields = PersonFields;
-
+            var peopleRequest = GetListRequest(userId);
             var matchesToBeCreated = await Match(peopleRequest, userId);
             await CreateConnection(matchesToBeCreated, userId);
         }

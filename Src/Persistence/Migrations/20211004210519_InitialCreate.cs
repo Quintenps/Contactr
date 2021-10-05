@@ -27,7 +27,8 @@ namespace Contactr.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Provider = table.Column<int>(type: "int", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ETag = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ETag = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResourceName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -233,7 +234,8 @@ namespace Contactr.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_PersonalCards_UserId",
                 table: "PersonalCards",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",

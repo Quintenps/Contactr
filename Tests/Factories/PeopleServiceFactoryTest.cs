@@ -41,14 +41,6 @@ namespace Contractr.Tests.Factories
         }
 
         [Fact]
-        public void TestConstructorFunction_throws_Exception()
-        {
-            Should.Throw<ArgumentNullException>(() => new PeopleServiceFactory(
-                null
-            ));
-        }
-
-        [Fact]
         private void Test_Create_EmptyClientId_ThrowsException()
         {
             // Arrange
@@ -58,7 +50,7 @@ namespace Contractr.Tests.Factories
             _configurationMock.Setup(x => x.GetSection(PeopleServiceFactory.GOOGLE_OAUTH_CLIENTID)).Returns(mockSectionClientId.Object);
             
             // Act & Assert
-            Should.Throw<ArgumentNullException>(() => new PeopleServiceFactory(_configurationMock.Object).Create(refreshToken)).Message.ShouldBe("Google config not found (Parameter '_configuration')");
+            Should.Throw<ArgumentNullException>(() => new PeopleServiceFactory(_configurationMock.Object).CreatePeopleServiceClient(refreshToken)).Message.ShouldBe("Google config not found (Parameter '_configuration')");
             
         }
         
@@ -72,7 +64,7 @@ namespace Contractr.Tests.Factories
             _configurationMock.Setup(x => x.GetSection(PeopleServiceFactory.GOOGLE_OAUTH_CLIENTSECRET)).Returns(mockSectionClientSecret.Object);
             
             // Act & Assert
-            Should.Throw<ArgumentNullException>(() => new PeopleServiceFactory(_configurationMock.Object).Create(refreshToken)).Message.ShouldBe("Google config not found (Parameter '_configuration')");
+            Should.Throw<ArgumentNullException>(() => new PeopleServiceFactory(_configurationMock.Object).CreatePeopleServiceClient(refreshToken)).Message.ShouldBe("Google config not found (Parameter '_configuration')");
         }
 
         [Fact]
@@ -82,7 +74,7 @@ namespace Contractr.Tests.Factories
             var refreshToken = "12345";
             
             // Act
-            var result = _peopleServiceFactory.Create(refreshToken);
+            var result = _peopleServiceFactory.CreatePeopleServiceClient(refreshToken);
             
             // Assert
             result.ShouldBeOfType<PeopleServiceService>();

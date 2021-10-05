@@ -9,5 +9,7 @@ namespace Contactr.Models
         public Guid Id { get; set; }
         public string Email { get; set; } = null!;
         public string? Avatar { get; set; }
+        public virtual PersonalCard PersonalCard { get; set; } = null!;
+        public virtual IEnumerable<BusinessCard> BusinessCards { get; set; } = null!;
     }
 }

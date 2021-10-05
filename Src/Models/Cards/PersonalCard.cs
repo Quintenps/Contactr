@@ -19,5 +19,10 @@ namespace Contactr.Models.Cards
         public string? Postalcode { get; set; }
         public string? City { get; set; }
         public string? Avatar { get; set; }
+
+        public string GetFullName()
+        {
+            return $"{Firstname} {Lastname}";
+        }
     }
 }

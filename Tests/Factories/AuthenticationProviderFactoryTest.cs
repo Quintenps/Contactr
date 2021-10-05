@@ -40,14 +40,6 @@ namespace Contractr.Tests.Factories
             var constructor = new AuthenticationProviderFactory(_dataProtectionProviderMock.Object);
             Assert.NotNull(constructor);
         }
-        
-        [Fact]
-        public void Test_ConstructorFunction_throws_Exception()
-        {
-            Should.Throw<NullReferenceException>(() => new AuthenticationProviderFactory(
-                null
-            ));
-        }
 
         [Fact]
         public void Test_Create_CreatesAuthenticationProvider()

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Contactr.Models.Cards;
 using Contactr.Models.Connection.Resources;
 
 namespace Contactr.Models.Connection

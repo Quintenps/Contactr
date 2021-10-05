@@ -1,5 +1,4 @@
 ﻿using Contactr.Models;
-using Contactr.Models.Cards;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

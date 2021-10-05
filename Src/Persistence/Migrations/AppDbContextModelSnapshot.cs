@@ -151,7 +151,8 @@ namespace Contactr.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("PersonalCards");
                 });
@@ -258,6 +259,10 @@ namespace Contactr.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ResourceName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasDiscriminator().HasValue("Google");
                 });
 
@@ -298,7 +303,7 @@ namespace Contactr.Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("Contactr.Models.User", "User")
-                        .WithMany()
+                        .WithMany("BusinessCards")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -313,8 +318,8 @@ namespace Contactr.Persistence.Migrations
             modelBuilder.Entity("Contactr.Models.Cards.PersonalCard", b =>
                 {
                     b.HasOne("Contactr.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("PersonalCard")
+                        .HasForeignKey("Contactr.Models.Cards.PersonalCard", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -349,6 +354,14 @@ namespace Contactr.Persistence.Migrations
             modelBuilder.Entity("Contactr.Models.Company", b =>
                 {
                     b.Navigation("Addresses");
+                });
+
+            modelBuilder.Entity("Contactr.Models.User", b =>
+                {
+                    b.Navigation("BusinessCards");
+
+                    b.Navigation("PersonalCard")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
