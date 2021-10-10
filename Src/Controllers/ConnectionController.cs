@@ -32,7 +32,7 @@ namespace Contactr.Controllers
         public async Task Test2()
         {
             Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
-            _syncService.Synchronize(userId);
+            await _syncService.Synchronize(userId);
         }
     }
 }

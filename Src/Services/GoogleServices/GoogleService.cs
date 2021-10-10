@@ -16,8 +16,8 @@ namespace Contactr.Services.GoogleServices
         private readonly IDataProtector _dataProtector;
         private readonly IPeopleServiceFactory _peopleServiceFactory;
         private readonly IAuthenticationProviderRepository _authenticationProviderRepository;
-        
-        public const string PersonFields = "names,emailAddresses,phoneNumbers";
+
+        protected const string PersonFields = "names,emailAddresses,phoneNumbers";
 
         protected GoogleService(ILogger<GoogleService> googleServiceLogger, IDataProtectionProvider dataProtectionProvider, IPeopleServiceFactory peopleServiceFactory, IAuthenticationProviderRepository authenticationProviderRepository)
         {
@@ -53,7 +53,5 @@ namespace Contactr.Services.GoogleServices
 
             return peopleRequest;
         }
-        
-        
     }
 }

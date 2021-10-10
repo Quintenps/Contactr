@@ -21,7 +21,11 @@ namespace Contactr.Persistence.Repositories
                 .Include(c => c.SenderUser)
                 .ThenInclude(su => su.PersonalCard)
                 .Include(su => su.SenderUser)
-                .ThenInclude(su => su.BusinessCards);
+                .ThenInclude(su => su.BusinessCards)
+                .ThenInclude(bc => bc.Company)
+                .Include(c => c.SenderUser)
+                .ThenInclude(su => su.BusinessCards)
+                .ThenInclude(bc => bc.Address);
         }
     }
 }

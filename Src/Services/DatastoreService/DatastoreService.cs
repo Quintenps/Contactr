@@ -1,43 +1,99 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Contactr.Factories.Interfaces;
 using Contactr.Models.Cards;
-using Contactr.Services.CardService;
 using Google.Apis.PeopleService.v1.Data;
 
 namespace Contactr.Services.DatastoreService
 {
+    /// <summary>
+    /// Class that is used to fill fields from <see cref="PersonalCard"/> and <see cref="BusinessCard"/>
+    /// </summary>
     public class DatastoreService : IDatastoreService
     {
-        private readonly ICardService _cardService;
         private readonly IPeopleServiceFactory _peopleServiceFactory;
-        //
+        
         private Person _person;
-        //
-        public DatastoreService(ICardService cardService, IPeopleServiceFactory peopleServiceFactory)
+        private PersonalCard _personalCard;
+        private IEnumerable<BusinessCard> _businessCards;
+
+        public DatastoreService(IPeopleServiceFactory peopleServiceFactory)
         {
-        _cardService = cardService ?? throw new ArgumentNullException(nameof(cardService));
-        _peopleServiceFactory = peopleServiceFactory ?? throw new ArgumentNullException(nameof(peopleServiceFactory));
+            _peopleServiceFactory =
+                peopleServiceFactory ?? throw new ArgumentNullException(nameof(peopleServiceFactory));
         }
-        //
-        // private void SetName(Person person)
-        // {
-        //     if (string.IsNullOrEmpty(_personalCard.Firstname) && string.IsNullOrEmpty(_personalCard.Lastname))
-        //     {
-        //         return;
-        //     }
-        //
-        //     var name = _peopleServiceFactory.CreateName(_personalCard.Firstname, _personalCard.Lastname, _personalCard.GetFullName());
-        //     person.Names.Add(name);
-        // }
-        //
-        //
-        public void MakeRequest(Guid userId, Person person)
+
+        private void SetFields(PersonalCard personalCard, IEnumerable<BusinessCard> businessCards, Person person)
         {
-            throw new NotImplementedException();
-            // _person = person;
-            // LoadCards(userId);
-            // SetName();
+            _person = person;
+            _personalCard = personalCard;
+            _businessCards = businessCards;
+        }
+
+        private void SetName()
+        {
+            if (string.IsNullOrEmpty(_personalCard.Firstname) || string.IsNullOrEmpty(_personalCard.Lastname))
+            {
+                return;
+            }
+
+            var names = new List<Name>();
+            names.Add(_peopleServiceFactory.CreateName(_personalCard.Firstname, _personalCard.Lastname,
+                _personalCard.GetFullName()));
+
+            _person.Names = names;
+        }
+
+        private void SetOrganizations()
+        {
+            if (!_businessCards.Any())
+            {
+                return;
+            }
+
+            var organizations = new List<Organization>();
+            foreach (var businessCard in _businessCards)
+            {
+                organizations.Add(_peopleServiceFactory.CreateOrganization(businessCard.Company.Name, businessCard.JobTitle));
+            }
+
+            _person.Organizations = organizations;
+        }
+
+        private void SetEmails()
+        {
+            var emails = new List<EmailAddress>();
+            if(!string.IsNullOrEmpty(_personalCard.Email))
+                emails.Add(_peopleServiceFactory.CreateEmail("Personal", _personalCard.Email));
+            if (_businessCards.Any())
+            {
+                foreach (var businessCard in _businessCards)
+                {
+                    if(!string.IsNullOrEmpty(businessCard.Email))
+                        emails.Add(_peopleServiceFactory.CreateEmail(businessCard.Company.Name, businessCard.Email));
+                }
+            }
+
+            _person.EmailAddresses = emails;
+        }
+
+
+        /// <summary>
+        /// Calls all method to update fields from <see cref="PersonalCard"/> and <see cref="businessCards"/> in <see cref="Person"/>
+        /// </summary>
+        /// <param name="personalCard"></param>
+        /// <param name="businessCards"></param>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public Person UpdateFields(PersonalCard personalCard, IEnumerable<BusinessCard> businessCards, Person person)
+        {
+            SetFields(personalCard, businessCards, person);
+            SetName();
+            SetOrganizations();
+            SetEmails();
+
+            return person;
         }
     }
 }
