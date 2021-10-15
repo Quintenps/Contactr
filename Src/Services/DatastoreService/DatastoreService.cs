@@ -14,9 +14,9 @@ namespace Contactr.Services.DatastoreService
     {
         private readonly IPeopleServiceFactory _peopleServiceFactory;
         
-        private Person _person;
-        private PersonalCard _personalCard;
-        private IEnumerable<BusinessCard> _businessCards;
+        private Person _person = null!;
+        private PersonalCard _personalCard = null!;
+        private IEnumerable<BusinessCard> _businessCards = null!;
 
         public DatastoreService(IPeopleServiceFactory peopleServiceFactory)
         {
@@ -38,9 +38,10 @@ namespace Contactr.Services.DatastoreService
                 return;
             }
 
-            var names = new List<Name>();
-            names.Add(_peopleServiceFactory.CreateName(_personalCard.Firstname, _personalCard.Lastname,
-                _personalCard.GetFullName()));
+            var names = new List<Name>
+            {
+                _peopleServiceFactory.CreateName(_personalCard.Firstname, _personalCard.Lastname,_personalCard.GetFullName())
+            };
 
             _person.Names = names;
         }

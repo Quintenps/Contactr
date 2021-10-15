@@ -7,27 +7,28 @@ using Contactr.Models;
 using Contactr.Models.Cards;
 using Contactr.Models.Connection;
 using Contactr.Persistence.Repositories.Interfaces;
+using Contactr.Services.ConnectionService.Providers;
 using Contactr.Services.DatastoreService;
 using Google.Apis.PeopleService.v1;
 using Google.Apis.PeopleService.v1.Data;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 
-namespace Contactr.Services.GoogleServices
+namespace Contactr.Services.ConnectionService
 {
     public class SyncService : GoogleService, ISyncService
     {
         private readonly IConnectionRepository _connectionRepository;
         private readonly IDatastoreService _datastoreService;
-        private PeopleServiceService _peopleServiceService;
-        private Logger<SyncService> _logger;
+        private readonly ILogger<SyncService> _logger;
         
+        private PeopleServiceService _peopleServiceService;
         private readonly string _updateFields = "names,emailAddresses,addresses,birthdays,genders";
 
         public SyncService(ILogger<GoogleService> googleServiceLogger, IDataProtectionProvider dataProtectionProvider,
             IPeopleServiceFactory peopleServiceFactory,
             IAuthenticationProviderRepository authenticationProviderRepository,
-            IConnectionRepository connectionRepository, IDatastoreService datastoreService, Logger<SyncService> logger) : base(googleServiceLogger,
+            IConnectionRepository connectionRepository, IDatastoreService datastoreService, ILogger<SyncService> logger) : base(googleServiceLogger,
             dataProtectionProvider, peopleServiceFactory, authenticationProviderRepository)
         {
             _connectionRepository =
@@ -59,7 +60,7 @@ namespace Contactr.Services.GoogleServices
         private List<Person> UpdatePersonFields(Dictionary<Guid, Tuple<Person, User>> people)
         {
             var updatedContacts = new List<Person>();
-            foreach (var (userId, (person, user)) in people)
+            foreach (var (_, (person, user)) in people)
             {
                 updatedContacts.Add(_datastoreService.UpdateFields(user.PersonalCard, user.BusinessCards, person));
             }

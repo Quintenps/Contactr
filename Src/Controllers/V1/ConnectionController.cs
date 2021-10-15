@@ -1,13 +1,13 @@
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Contactr.Services.GoogleServices;
+using Contactr.Services.ConnectionService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Contactr.Controllers
+namespace Contactr.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     [Authorize]
     public class ConnectionController : ControllerBase
@@ -21,15 +21,15 @@ namespace Contactr.Controllers
             _syncService = syncService ?? throw new ArgumentNullException(nameof(syncService));
         }
 
-        [HttpGet]
-        public async Task Test()
+        [HttpGet("create")]
+        public async Task CreateConnections()
         {
             Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
             await _connectionService.ReadGoogleContacts(userId);
         }
 
-        [HttpGet("2")]
-        public async Task Test2()
+        [HttpGet("synchronize")]
+        public async Task SynchronizeConnections()
         {
             Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
             await _syncService.Synchronize(userId);

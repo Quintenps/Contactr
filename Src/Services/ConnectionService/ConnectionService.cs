@@ -8,11 +8,12 @@ using Contactr.Models.Connection;
 using Contactr.Models.Connection.Resources;
 using Contactr.Persistence;
 using Contactr.Persistence.Repositories.Interfaces;
+using Contactr.Services.ConnectionService.Providers;
 using Google.Apis.PeopleService.v1;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 
-namespace Contactr.Services.GoogleServices
+namespace Contactr.Services.ConnectionService
 {
     /// <summary>
     /// Service that is used for reading user's Google contacts and creating <see cref="Connection"/>'s

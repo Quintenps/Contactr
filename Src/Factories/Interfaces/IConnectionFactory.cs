@@ -1,6 +1,5 @@
 ﻿using System;
 using Contactr.Models.Connection;
-using Contactr.Models.Connection.Resources;
 
 namespace Contactr.Factories.Interfaces
 {

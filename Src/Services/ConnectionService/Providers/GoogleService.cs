@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using static Google.Apis.PeopleService.v1.PeopleResource.ConnectionsResource;
 
-namespace Contactr.Services.GoogleServices
+namespace Contactr.Services.ConnectionService.Providers
 {
     public abstract class GoogleService : IGoogleService
     {

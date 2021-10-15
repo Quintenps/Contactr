@@ -4,9 +4,9 @@ using Contactr.DTOs.AuthenticationProvider;
 using Contactr.Services.AuthService;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Contactr.Controllers
+namespace Contactr.Controllers.V1
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {

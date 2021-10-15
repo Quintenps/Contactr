@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Contactr.Services.GoogleServices
+namespace Contactr.Services.ConnectionService
 {
     public interface IConnectionService
     {

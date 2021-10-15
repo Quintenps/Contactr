@@ -7,9 +7,9 @@ using Contactr.Services.CardService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Contactr.Controllers.Cards
+namespace Contactr.Controllers.V1.Cards
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/cards/[controller]")]
     [ApiController]
     [Authorize]
     public class PersonalCardController : ControllerBase

@@ -6,21 +6,18 @@ using AutoMapper;
 using Contactr.DTOs.Cards;
 using Contactr.Services.CardService;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace Contactr.Controllers.Cards
+namespace Contactr.Controllers.V1.Cards
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/cards/[controller]")]
     [ApiController]
     public class BusinessCardController : ControllerBase
     {
-        private readonly ILogger<BusinessCardController> _logger;
         private readonly IMapper _mapper;
         private readonly ICardService _cardService;
 
-        public BusinessCardController(ILogger<BusinessCardController> logger, ICardService cardService, IMapper mapper)
+        public BusinessCardController(ICardService cardService, IMapper mapper)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _cardService = cardService ?? throw new ArgumentNullException(nameof(cardService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
