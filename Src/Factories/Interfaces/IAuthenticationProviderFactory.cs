@@ -6,6 +6,6 @@ namespace Contactr.Factories.Interfaces
 {
     public interface IAuthenticationProviderFactory
     {
-        public AuthenticationProvider Create(Guid userId, string key, LoginProviders loginProvider, string refreshToken);
+        public AuthenticationProvider Create(Guid userId, LoginProviders loginProvider, string refreshToken);
     }
 }

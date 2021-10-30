@@ -1,9 +1,10 @@
-﻿using Contactr.Models;
+﻿using System;
+using Contactr.Models;
 
 namespace Contactr.Factories.Interfaces
 {
     public interface IUserFactory
     {
-        public User Create(string email, string? avatar);
+        public User Create(Guid uuid, string auth0Id);
     }
 }

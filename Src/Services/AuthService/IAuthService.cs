@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using Contactr.DTOs.AuthenticationProvider;
-using Google.Apis.Auth;
+﻿using System;
+using System.Threading.Tasks;
+using Contactr.DTOs.Cards;
+using Contactr.Models;
 
 namespace Contactr.Services.AuthService
 {
     public interface IAuthService
     {
-        public Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(GoogleLoginDto externalAuth);
-        public Task<string> Login(GoogleJsonWebSignature.Payload payload, string refreshToken);
+        public Task<User> CreateUser(Guid uuid, string auth0Id);
     }
 }

@@ -8,7 +8,7 @@ namespace Contactr.Persistence.EntityConfiguration
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.HasIndex(u => new { u.Email }).IsUnique();
+            //
         }
     }
 }

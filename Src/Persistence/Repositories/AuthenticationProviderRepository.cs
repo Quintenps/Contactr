@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Contactr.Models.Authentication;
+﻿using Contactr.Models.Authentication;
 using Contactr.Persistence.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Contactr.Persistence.Repositories
 {
@@ -10,13 +8,6 @@ namespace Contactr.Persistence.Repositories
         public AuthenticationProviderRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
-
-        public AuthenticationProvider? GetProviderWithUserOrDefault(string providerKey)
-        {
-            return MUnitOfWork.Context.AuthenticationProviders
-                .Where(ap => ap.Key.Equals(providerKey))
-                .Include(ap => ap.User)
-                .FirstOrDefault();
-        }
+        
     }
 }

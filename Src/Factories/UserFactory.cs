@@ -6,14 +6,12 @@ namespace Contactr.Factories
 {
     public class UserFactory : IUserFactory
     {
-        
-        public User Create(string email, string? avatar)
+        public User Create(Guid uuid, string auth0Id)
         {
-            var user = new User()
+            var user = new User
             {
-                Id = Guid.NewGuid(),
-                Email = email,
-                Avatar = avatar
+                Id = uuid,
+                Auth0Id = auth0Id
             };
             
             return user;

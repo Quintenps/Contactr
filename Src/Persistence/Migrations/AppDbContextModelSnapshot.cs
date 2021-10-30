@@ -49,8 +49,9 @@ namespace Contactr.Persistence.Migrations
 
             modelBuilder.Entity("Contactr.Models.Authentication.AuthenticationProvider", b =>
                 {
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("LoginProvider")
                         .HasColumnType("int");
@@ -62,9 +63,12 @@ namespace Contactr.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Key");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("LoginProvider", "UserId")
+                        .IsUnique();
 
                     b.ToTable("AuthenticationProviders");
                 });
@@ -236,17 +240,11 @@ namespace Contactr.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Avatar")
+                    b.Property<string>("Auth0Id")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.ToTable("Users");
                 });

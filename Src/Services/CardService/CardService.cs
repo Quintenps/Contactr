@@ -19,14 +19,8 @@ namespace Contactr.Services.CardService
             _cardFactory = cardFactory ?? throw new ArgumentNullException(nameof(cardFactory));
         }
 
-        public PersonalCard GetPersonalCard(Guid userId)
+        private void UpdatePersonalCard(PersonalCard card, PersonalCardDto personalCardDto)
         {
-            return _unitOfWork.PersonalCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId));
-        }
-
-        public async Task UpdatePersonalCard(Guid userId, PersonalCardDto personalCardDto)
-        {
-            var card = _unitOfWork.PersonalCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId));
             card.Firstname = personalCardDto.Firstname;
             card.Lastname = personalCardDto.Lastname;
             card.Gender = personalCardDto.Gender;
@@ -37,8 +31,6 @@ namespace Contactr.Services.CardService
             card.Country = personalCardDto.Country;
             card.Postalcode = personalCardDto.Postalcode;
             card.City = personalCardDto.City;
-
-            await _unitOfWork.Save();
         }
 
         private void UpdateBusinessCard(BusinessCard card, BusinessCardCreateDto businessCardDto)
@@ -50,12 +42,48 @@ namespace Contactr.Services.CardService
             card.Phone = businessCardDto.Phone;
         }
 
+        private void CheckIfPersonalCardAlreadyExists(Guid userId)
+        {
+            if (_unitOfWork.PersonalCardRepository.Exists(pc => pc.UserId.Equals(userId)))
+            {
+                throw new ArgumentException("PersonalCard already exists");
+            }
+        }
+
+        private static void CheckIfPersonalCardExists(PersonalCard personalCard)
+        {
+            if (personalCard is null)
+                throw new ArgumentException("Business card not found");
+        }
+
         private static void CheckIfBusinessCardExists(BusinessCard businessCard)
         {
             if (businessCard is null)
                 throw new ArgumentException("Business card not found");
         }
-        
+
+        public PersonalCard GetPersonalCard(Guid userId)
+        {
+            return _unitOfWork.PersonalCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId));
+        }
+
+        public async Task CreatePersonalCard(Guid userId, PersonalCardDto personalCardDto)
+        {
+            CheckIfPersonalCardAlreadyExists(userId);
+            var card = _cardFactory.CreatePersonalCard(userId);
+            UpdatePersonalCard(card, personalCardDto);
+            _unitOfWork.PersonalCardRepository.Add(card);
+            await _unitOfWork.Save();
+        }
+
+        public async Task UpdatePersonalCard(Guid userId, PersonalCardDto personalCardDto)
+        {
+            var card = _unitOfWork.PersonalCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId));
+            CheckIfPersonalCardExists(card);
+            UpdatePersonalCard(card, personalCardDto);
+            await _unitOfWork.Save();
+        }
+
         public BusinessCard? GetBusinessCard(Guid userId, Guid cardId)
         {
             return _unitOfWork.BusinessCardRepository.Get(userId, cardId);
@@ -68,20 +96,22 @@ namespace Contactr.Services.CardService
 
         public async Task CreateBusinessCard(Guid userId, BusinessCardCreateDto businessCardDto)
         {
+            // TODO: Validator
             var card = _cardFactory.CreateBusinessCard(userId);
             UpdateBusinessCard(card, businessCardDto);
             _unitOfWork.BusinessCardRepository.Add(card);
             await _unitOfWork.Save();
         }
-        
+
         public async Task UpdateBusinessCard(Guid userId, Guid cardId, BusinessCardCreateDto businessCardDto)
         {
+            // TODO: Validator
             var card = _unitOfWork.BusinessCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId) && pc.Id.Equals(cardId));
             CheckIfBusinessCardExists(card);
             UpdateBusinessCard(card, businessCardDto);
             await _unitOfWork.Save();
         }
-        
+
         public async Task DeleteBusinessCard(Guid userId, Guid cardId)
         {
             var card = _unitOfWork.BusinessCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId) && pc.Id.Equals(cardId));

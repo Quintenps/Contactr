@@ -29,11 +29,11 @@ namespace Contactr.Services.ConnectionService.Providers
 
         public AuthenticationProvider GetAuthenticationProvider(Guid userId)
         {
-            var authenticationProvider = _authenticationProviderRepository.SingleOrDefault(ap => ap.UserId.Equals(userId));
+            var authenticationProvider = _authenticationProviderRepository.SingleOrDefault(ap => ap.UserId.Equals(userId) && ap.LoginProvider.Equals(LoginProviders.Google));
             if (authenticationProvider is null)
             {
-                _logger.LogError($"Authentication provider not found for userId {userId}");
-                throw new ArgumentException("Authenticationprovider not found");
+                _logger.LogError($"Authentication provider {LoginProviders.Google} not found for userId {userId}");
+                throw new ArgumentException($"Authentication provider {LoginProviders.Google} not found");
             }
 
             return authenticationProvider;

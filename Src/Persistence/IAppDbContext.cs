@@ -14,6 +14,6 @@ namespace Contactr.Persistence
         public DbSet<Connection> Connections { get; }
         public DbSet<PersonalCard> PersonalCards { get; }
         public DbSet<BusinessCard> BusinessCards { get; }
-        public DbSet<AuthenticationProvider> AuthenticationProviders { get; }
+        public DbSet<AuthenticationProvider> AuthenticationProviders { get; set; }
     }
 }

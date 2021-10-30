@@ -25,7 +25,7 @@ namespace Contactr.Controllers.V1.Cards
         [HttpGet]
         public IEnumerable<BusinessCardDto> GetALl()
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             var businessCards = _cardService.GetBusinessCards(userId);
             return _mapper.Map<IEnumerable<BusinessCardDto>>(businessCards);
         }
@@ -33,7 +33,7 @@ namespace Contactr.Controllers.V1.Cards
         [HttpGet("{cardId:guid}")]
         public BusinessCardDto Get(Guid cardId)
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             var personalCard = _cardService.GetBusinessCard(userId, cardId);
             return _mapper.Map<BusinessCardDto>(personalCard);
         }
@@ -41,7 +41,7 @@ namespace Contactr.Controllers.V1.Cards
         [HttpPost]
         public async Task<ActionResult> Create(BusinessCardCreateDto businessCardDto)
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             await _cardService.CreateBusinessCard(userId, businessCardDto);
 
             return Ok();
@@ -50,7 +50,7 @@ namespace Contactr.Controllers.V1.Cards
         [HttpPut("{cardId:guid}")]
         public async Task<ActionResult> Update(Guid cardId, BusinessCardCreateDto businessCardDto)
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             await _cardService.UpdateBusinessCard(userId, cardId, businessCardDto);
 
             return Ok();
@@ -59,7 +59,7 @@ namespace Contactr.Controllers.V1.Cards
         [HttpDelete("{cardId:guid}")]
         public async Task<ActionResult> Delete(Guid cardId)
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             await _cardService.DeleteBusinessCard(userId, cardId);
 
             return Ok();

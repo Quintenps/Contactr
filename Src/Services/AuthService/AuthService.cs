@@ -1,139 +1,146 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using Contactr.DTOs.AuthenticationProvider;
-using Contactr.Factories;
+using Contactr.DTOs.Auth0;
+using Contactr.DTOs.Cards;
 using Contactr.Factories.Interfaces;
-using Contactr.Models;
-using Contactr.Models.Authentication;
 using Contactr.Models.Cards;
 using Contactr.Models.Enums;
 using Contactr.Persistence;
-using Google.Apis.Auth;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Graph;
+using Newtonsoft.Json;
+using User = Contactr.Models.User;
 
 namespace Contactr.Services.AuthService
 {
     public class AuthService : IAuthService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<AuthService> _logger;
         private readonly IUserFactory _userFactory;
         private readonly ICardFactory _cardFactory;
+        private readonly ILogger<AuthService> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAuthenticationProviderFactory _authenticationProviderFactory;
 
-        public const string JWT_TOKEN = "Jwt:Token";
-
-        public AuthService(IConfiguration configuration, IUnitOfWork unitOfWork, ILogger<AuthService> logger, IUserFactory userFactory, ICardFactory cardFactory, IAuthenticationProviderFactory authenticationProviderFactory)
+        public AuthService(IMemoryCache cache, IUnitOfWork unitOfWork, IUserFactory userFactory, ICardFactory cardFactory, ILogger<AuthService> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory,
+            IAuthenticationProviderFactory authenticationProviderFactory)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _userFactory = userFactory ?? throw new ArgumentNullException(nameof(userFactory));
             _cardFactory = cardFactory ?? throw new ArgumentNullException(nameof(cardFactory));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _authenticationProviderFactory = authenticationProviderFactory ?? throw new ArgumentNullException(nameof(authenticationProviderFactory));
-
-            if (string.IsNullOrEmpty(_configuration.GetValue<string>(JWT_TOKEN)))
-                throw new ArgumentException("Empty or null value", nameof(_configuration));
         }
 
-        /// <summary>
-        /// Creates JWT Token
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private string CreateToken(User user)
+        private void CheckIfUserAlreadyExists(Guid uuid)
         {
-            var claims = new List<Claim>
+            if (_unitOfWork.UserRepository.Exists(u => u.Id.Equals(uuid)))
             {
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Email, user.Email)
-            };
-
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration.GetSection(JWT_TOKEN).Value)
-            );
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(14),
-                SigningCredentials = creds
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
+                throw new ArgumentException($"User already exists with uuid {uuid}");
+            }
         }
 
-        /// <summary>
-        /// Creates an <see cref="AuthenticationProvider"/> and an <see cref="User"/> with <see cref="PersonalCard"/>
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <param name="refreshToken"></param>
-        /// <returns></returns>
-        private async Task<User> Register(GoogleJsonWebSignature.Payload payload, string refreshToken)
+        private async Task<Token?> GetAuth0Token()
         {
-            User user = _userFactory.Create(payload.Email, null);
-            var personalCard = _cardFactory.CreatePersonalCard(user.Id);
-            var authenticationProvider = _authenticationProviderFactory.Create(user.Id, payload.Subject, LoginProviders.Google, refreshToken);
+            if (_cache.TryGetValue(CacheKeys.Auth0Token, out Token? authToken))
+            {
+                return authToken;
+            }
 
-            _unitOfWork.AuthenticationProviderRepository.Add(authenticationProvider);
-            _unitOfWork.PersonalCardRepository.Add(personalCard);
-            _unitOfWork.UserRepository.Add(user);
-            await _unitOfWork.Save();
+            var auth0MachineDetails = new RequestTokenDto()
+            {
+                ClientId = _configuration.GetValue<string>("Auth0Machine:clientId"),
+                ClientSecret = _configuration.GetValue<string>("Auth0Machine:clientSecret"),
+                Audience = _configuration.GetValue<string>("Auth0Machine:audience"),
+                GrantType = "client_credentials" 
+            };
+
+            var client = _httpClientFactory.CreateClient();
+            var tokenUrl = _configuration.GetValue<string>("Auth0Machine:token");
+            HttpResponseMessage response = await client.PostAsync(tokenUrl, new StringContent(
+                JsonConvert.SerializeObject(auth0MachineDetails), Encoding.UTF8, "application/json"));
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Couldn't get auth0 token");
+                _logger.LogError(await response.Content.ReadAsStringAsync());
+                throw new HttpRequestException();
+            }
+            var token = await response.Content.ReadFromJsonAsync<Token>();
+            _cache.Set(CacheKeys.Auth0Token, token, DateTimeOffset.Now.AddHours(23));
+
+            return token;
+        } 
+        
+        private async Task<UserDto?> LookupAuth0User(string auth0Id, Token? token)
+        {
+            var userInfoUrl = _configuration.GetValue<string>("Auth0Machine:audience") + $"users/{auth0Id}";
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            var response = await client.GetAsync(userInfoUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Couldn't lookup auth0 user {auth0Id}");
+                _logger.LogError(await response.Content.ReadAsStringAsync());
+                throw new HttpRequestException();
+            }
             
-            return user;
+            return await response.Content.ReadFromJsonAsync<UserDto>();
+        }
+
+        private static void FillPersonalCardFromAuth0User(UserDto auth0User, PersonalCard personalCard)
+        {
+            personalCard.Email = auth0User.Email;
+            personalCard.Firstname = auth0User.GivenName;
+            personalCard.Lastname = auth0User.Name;
+        }
+
+        private void CreateAuthenticationProviders(UserDto auth0User, Guid userId)
+        {
+            foreach (var identity in auth0User.Identities)
+            {
+                if(string.IsNullOrEmpty(identity.RefreshToken))
+                    continue;
+
+                switch (identity.Provider)
+                {
+                    case "google-oauth2":
+                        var authenticationProvider = _authenticationProviderFactory.Create(userId, LoginProviders.Google, identity.RefreshToken);
+                        _unitOfWork.AuthenticationProviderRepository.Add(authenticationProvider);
+                        break;
+                }
+            }
         }
         
-        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(GoogleLoginDto externalAuth)
+        public async Task<User> CreateUser(Guid uuid, string auth0Id)
         {
-            try
-            {
-                var settings = new GoogleJsonWebSignature.ValidationSettings
-                {
-                    Audience = new List<string> { _configuration.GetValue<string>(PeopleServiceFactory.GOOGLE_OAUTH_CLIENTID) }
-                };
-                var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
-                return payload;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                throw;
-            }
-        }
+            CheckIfUserAlreadyExists(uuid);
+            var user = _userFactory.Create(uuid, auth0Id);
+            user.PersonalCard = _cardFactory.CreatePersonalCard(uuid);
+            _unitOfWork.UserRepository.Add(user);
 
-        /// <summary>
-        /// Creates a user and personal card or finds existing user
-        /// Returns JWT
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <param name="refreshToken"></param>
-        /// <returns></returns>
-        public async Task<string> Login(GoogleJsonWebSignature.Payload payload, string refreshToken)
-        {
-            var authenticationProvider = _unitOfWork.AuthenticationProviderRepository.GetProviderWithUserOrDefault(payload.Subject);
-            User user;
-            if (authenticationProvider is null)
+            var token = await GetAuth0Token();
+            var auth0User = await LookupAuth0User(user.Auth0Id, token);
+            if (auth0User != null)
             {
-                user = await Register(payload, refreshToken);
-            }
-            else
-            {
-                user = authenticationProvider.User;
+                FillPersonalCardFromAuth0User(auth0User, user.PersonalCard);
+                CreateAuthenticationProviders(auth0User, user.Id);
             }
 
-            return CreateToken(user);
+            await _unitOfWork.Save();
+
+            return user;
         }
     }
 }

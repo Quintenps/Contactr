@@ -22,11 +22,20 @@ namespace Contactr.Controllers.V1.Cards
             _cardService = cardService ?? throw new ArgumentNullException(nameof(cardService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
+        
+        [HttpPost]
+        public async Task<ActionResult> Create(PersonalCardDto personalCardDto)
+        {
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
+            await _cardService.CreatePersonalCard(userId, personalCardDto);
+
+            return Ok();
+        }
 
         [HttpGet]
         public PersonalCardDto Get()
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             var personalCard = _cardService.GetPersonalCard(userId);
             return _mapper.Map<PersonalCardDto>(personalCard);
         }
@@ -34,7 +43,7 @@ namespace Contactr.Controllers.V1.Cards
         [HttpPut]
         public async Task<ActionResult> Put(PersonalCardDto personalCardDto)
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             await _cardService.UpdatePersonalCard(userId, personalCardDto);
 
             return Ok();

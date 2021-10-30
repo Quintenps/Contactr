@@ -15,12 +15,11 @@ namespace Contactr.Factories
             _dataProtector = dataProtectionProvider.CreateProtector(DataProtectionKeys.AuthProviderRefreshToken.ToString()) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
         }
 
-        public AuthenticationProvider Create(Guid userId, string key, LoginProviders loginProvider, string refreshToken)
+        public AuthenticationProvider Create(Guid userId, LoginProviders loginProvider, string refreshToken)
         {
             return new AuthenticationProvider()
             {
                 UserId = userId,
-                Key = key,
                 LoginProvider = loginProvider,
                 RefreshToken = _dataProtector.Protect(refreshToken)
             };

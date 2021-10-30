@@ -6,6 +6,7 @@ namespace Contactr.Factories.Interfaces
     public interface IPeopleServiceFactory
     {
         public PeopleServiceService CreatePeopleServiceClient(string refreshToken);
+        public PeopleServiceService CreatePeopleServiceClientWithAccessToken(string accessToken);
         public Name CreateName(string firstName, string lastName, string fullName);
         public Organization CreateOrganization(string companyName, string jobTitle);
         public EmailAddress CreateEmail(string type, string emailAddress);

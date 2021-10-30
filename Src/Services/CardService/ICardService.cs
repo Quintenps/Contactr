@@ -9,6 +9,7 @@ namespace Contactr.Services.CardService
     public interface ICardService
     {
         public PersonalCard GetPersonalCard(Guid userId);
+        public Task CreatePersonalCard(Guid userId, PersonalCardDto personalCardDto);
         public Task UpdatePersonalCard(Guid userId, PersonalCardDto personalCardDto);
         public BusinessCard? GetBusinessCard(Guid userId, Guid cardId);
         public IEnumerable<BusinessCard> GetBusinessCards(Guid userId);

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Contactr.DTOs.AuthenticationProvider;
+using Contactr.DTOs.Cards;
+using Contactr.Models;
 using Contactr.Services.AuthService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,12 +24,12 @@ namespace Contactr.Controllers.V1
             return Ok();
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult> Login(GoogleLoginDto googleLoginDto)
+        // Todo: Protect API
+        [HttpPost("{uuid:guid}/{auth0Id}")]
+        public async Task<ActionResult<User>> CreateAccount(Guid uuid, string auth0Id)
         {
-            var googlePayload = await _authService.VerifyGoogleToken(googleLoginDto);
-            var jwt = await _authService.Login(googlePayload, googleLoginDto.RefreshToken);
-            return Ok(jwt);
+            var user = await _authService.CreateUser(uuid, auth0Id);
+            return Created("Created", user);
         }
     }
 }

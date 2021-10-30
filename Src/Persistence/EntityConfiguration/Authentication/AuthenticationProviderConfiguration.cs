@@ -8,7 +8,7 @@ namespace Contactr.Persistence.EntityConfiguration.Authentication
     {
         public void Configure(EntityTypeBuilder<AuthenticationProvider> builder)
         {
-            builder.HasKey(ap => ap.Key);
+            builder.HasIndex(ap => new {ap.LoginProvider, ap.UserId}).IsUnique();
             builder.HasOne(ap => ap.User);
         }
     }

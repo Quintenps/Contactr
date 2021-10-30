@@ -55,6 +55,27 @@ namespace Contactr.Factories
             });
         }
         
+        public PeopleServiceService CreatePeopleServiceClientWithAccessToken(string accessToken)
+        {
+            ClientSecrets secrets = new()
+            {
+                ClientId = _configuration.GetValue<string>(GOOGLE_OAUTH_CLIENTID),
+                ClientSecret = _configuration.GetValue<string>(GOOGLE_OAUTH_CLIENTSECRET)
+            };
+
+            var token = new TokenResponse { AccessToken = accessToken };
+            var credentials = new UserCredential(new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+            {
+                ClientSecrets = secrets
+            }), "user", token);
+
+            return new PeopleServiceService(new BaseClientService.Initializer
+            {
+                ApplicationName = "Contactr",
+                HttpClientInitializer = credentials
+            });
+        }
+        
         public Name CreateName(string firstName, string lastName, string fullName)
         {
             return new Name()

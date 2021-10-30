@@ -40,8 +40,7 @@ namespace Contactr.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Auth0Id = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,14 +73,14 @@ namespace Contactr.Persistence.Migrations
                 name: "AuthenticationProviders",
                 columns: table => new
                 {
-                    Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LoginProvider = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuthenticationProviders", x => x.Key);
+                    table.PrimaryKey("PK_AuthenticationProviders", x => x.Id);
                     table.ForeignKey(
                         name: "FK_AuthenticationProviders_Users_UserId",
                         column: x => x.UserId,
@@ -191,6 +190,12 @@ namespace Contactr.Persistence.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthenticationProviders_LoginProvider_UserId",
+                table: "AuthenticationProviders",
+                columns: new[] { "LoginProvider", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AuthenticationProviders_UserId",
                 table: "AuthenticationProviders",
                 column: "UserId");
@@ -235,12 +240,6 @@ namespace Contactr.Persistence.Migrations
                 name: "IX_PersonalCards_UserId",
                 table: "PersonalCards",
                 column: "UserId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                table: "Users",
-                column: "Email",
                 unique: true);
         }
 

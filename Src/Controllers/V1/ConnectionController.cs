@@ -24,14 +24,14 @@ namespace Contactr.Controllers.V1
         [HttpGet("create")]
         public async Task CreateConnections()
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             await _connectionService.ReadGoogleContacts(userId);
         }
 
         [HttpGet("synchronize")]
         public async Task SynchronizeConnections()
         {
-            Guid userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new InvalidOperationException());
+            Guid userId = new Guid(User.FindFirst("https://contactr/claims/uuid").Value ?? throw new InvalidOperationException());
             await _syncService.Synchronize(userId);
         }
     }
