@@ -15,5 +15,6 @@ namespace Contactr.DTOs.Cards
         public string? Country { get; set; }
         public string? Postalcode { get; set; }
         public string? City { get; set; }  
+        public string? Avatar { get; set; }
     }
 }

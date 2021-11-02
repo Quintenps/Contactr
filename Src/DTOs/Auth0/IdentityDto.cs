@@ -1,28 +1,28 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Contactr.DTOs.Auth0
 {
     public class IdentityDto
     {
-        [JsonPropertyName("provider")]
+        [JsonProperty("provider")]
         public string Provider { get; set; }
 
-        [JsonPropertyName("AccessToken")]
+        [JsonProperty("access_token")]
         public string AccessToken { get; set; }
 
-        [JsonPropertyName("refresh_token")]
+        [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
-        [JsonPropertyName("expires_in")]
+        [JsonProperty("expires_in")]
         public int ExpiresIn { get; set; }
 
-        [JsonPropertyName("user_id")]
+        [JsonProperty("user_id")]
         public string UserId { get; set; }
 
-        [JsonPropertyName("connection")]
+        [JsonProperty("connection")]
         public string Connection { get; set; }
 
-        [JsonPropertyName("isSocial")]
+        [JsonProperty("isSocial")]
         public bool IsSocial { get; set; }
     }
 }

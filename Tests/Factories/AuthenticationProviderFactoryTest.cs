@@ -53,13 +53,12 @@ namespace Contractr.Tests.Factories
             var expectedAuthenticationProvider = new AuthenticationProvider()
             {
                 UserId = userId,
-                Key = key,
                 LoginProvider = loginProvider,
                 RefreshToken = "NTQzMjE"
             };
             
             // Act
-            var result = _authenticationProviderFactory.Create(userId, key, loginProvider, refreshToken);
+            var result = _authenticationProviderFactory.Create(userId, loginProvider, refreshToken);
             
             // Assert
             result.ShouldBeEquivalentTo(expectedAuthenticationProvider);

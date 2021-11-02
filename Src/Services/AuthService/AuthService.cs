@@ -77,7 +77,8 @@ namespace Contactr.Services.AuthService
                 _logger.LogError(await response.Content.ReadAsStringAsync());
                 throw new HttpRequestException();
             }
-            var token = await response.Content.ReadFromJsonAsync<Token>();
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var token = JsonConvert.DeserializeObject<Token>(responseContent);
             _cache.Set(CacheKeys.Auth0Token, token, DateTimeOffset.Now.AddHours(23));
 
             return token;
@@ -95,8 +96,9 @@ namespace Contactr.Services.AuthService
                 _logger.LogError(await response.Content.ReadAsStringAsync());
                 throw new HttpRequestException();
             }
-            
-            return await response.Content.ReadFromJsonAsync<UserDto>();
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<UserDto>(responseContent);
         }
 
         private static void FillPersonalCardFromAuth0User(UserDto auth0User, PersonalCard personalCard)

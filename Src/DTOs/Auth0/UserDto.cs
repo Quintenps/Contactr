@@ -1,51 +1,51 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Contactr.DTOs.Auth0
 {
     public class UserDto
     {
-        [JsonPropertyName("created_at")]
+        [JsonProperty("created_at")]
         public DateTime CreatedAt { get; set; }
 
-        [JsonPropertyName("email")]
+        [JsonProperty("email")]
         public string Email { get; set; }
 
-        [JsonPropertyName("email_verified")]
+        [JsonProperty("email_verified")]
         public bool EmailVerified { get; set; }
 
-        [JsonPropertyName("given_name")]
+        [JsonProperty("given_name")]
         public string GivenName { get; set; }
 
-        [JsonPropertyName("identities")]
+        [JsonProperty("identities")]
         public List<IdentityDto> Identities { get; set; }
 
-        [JsonPropertyName("locale")]
+        [JsonProperty("locale")]
         public string Locale { get; set; }
 
-        [JsonPropertyName("name")]
+        [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("nickname")]
+        [JsonProperty("nickname")]
         public string Nickname { get; set; }
 
-        [JsonPropertyName("picture")]
+        [JsonProperty("picture")]
         public string Picture { get; set; }
 
-        [JsonPropertyName("updated_at")]
+        [JsonProperty("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
-        [JsonPropertyName("user_id")]
+        [JsonProperty("user_id")]
         public string UserId { get; set; }
 
-        [JsonPropertyName("last_ip")]
+        [JsonProperty("last_ip")]
         public string LastIp { get; set; }
 
-        [JsonPropertyName("last_login")]
+        [JsonProperty("last_login")]
         public DateTime LastLogin { get; set; }
 
-        [JsonPropertyName("logins_count")]
+        [JsonProperty("logins_count")]
         public int LoginsCount { get; set; }
     }
 }

@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Contactr.DTOs;
 using Contactr.DTOs.Cards;
 using Contactr.Factories.Interfaces;
 using Contactr.Models.Cards;
+using Contactr.Models.Enums;
 using Contactr.Persistence;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Contactr.Services.CardService
 {
@@ -12,11 +18,15 @@ namespace Contactr.Services.CardService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICardFactory _cardFactory;
+        private readonly ILogger<CardService> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public CardService(IUnitOfWork unitOfWork, ICardFactory cardFactory)
+        public CardService(IUnitOfWork unitOfWork, ICardFactory cardFactory, ILogger<CardService> logger, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _cardFactory = cardFactory ?? throw new ArgumentNullException(nameof(cardFactory));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _webHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         }
 
         private void UpdatePersonalCard(PersonalCard card, PersonalCardDto personalCardDto)
@@ -53,7 +63,7 @@ namespace Contactr.Services.CardService
         private static void CheckIfPersonalCardExists(PersonalCard personalCard)
         {
             if (personalCard is null)
-                throw new ArgumentException("Business card not found");
+                throw new ArgumentException("Personal card not found");
         }
 
         private static void CheckIfBusinessCardExists(BusinessCard businessCard)
@@ -74,6 +84,37 @@ namespace Contactr.Services.CardService
             UpdatePersonalCard(card, personalCardDto);
             _unitOfWork.PersonalCardRepository.Add(card);
             await _unitOfWork.Save();
+        }
+
+        public async Task UploadAvatar(Guid userId, IFormFile avatar)
+        {
+            // Validator
+            var card = _unitOfWork.PersonalCardRepository.SingleOrDefault(pc => pc.UserId.Equals(userId));
+            CheckIfPersonalCardExists(card);
+            var path = _webHostEnvironment.WebRootPath + Images.PersonalCardFolder;
+            var filename = Path.GetRandomFileName() + ".jpg";
+
+            try
+            {
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                await using var fileStream = File.Create(path + filename);
+                await avatar.CopyToAsync(fileStream);
+                await fileStream.FlushAsync();
+
+                // Cleanup old image
+                if (!string.IsNullOrEmpty(card.Avatar))
+                    File.Delete(path + card.Avatar);
+
+                card.Avatar = filename;
+                await _unitOfWork.Save();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("Couldn't upload avatar - " + e.Message);
+            }
         }
 
         public async Task UpdatePersonalCard(Guid userId, PersonalCardDto personalCardDto)

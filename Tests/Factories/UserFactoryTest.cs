@@ -1,4 +1,5 @@
-﻿using Contactr.Factories;
+﻿using System;
+using Contactr.Factories;
 using Contactr.Factories.Interfaces;
 using Contactr.Models;
 using Shouldly;
@@ -26,21 +27,20 @@ namespace Contractr.Tests.Factories
         public void Test_Create_CreatesUser()
         {
             // Arrange
-            var email = "test@contactr.local";
-            string? avatar = null;
+            var guid = new Guid("5BC7A31C-8690-4B62-8909-AD9485F61205");
+            var auth0Id = "google-oauth2|1520432";
             var expectedUser = new User()
             {
-                Email = email,
-                Avatar = null
+                Id = guid,
+                Auth0Id = auth0Id
             };
             
             // Act
-            var result = _userFactory.Create(email, avatar);
+            var result = _userFactory.Create(guid, auth0Id);
 
             // Assert
             result.ShouldBeOfType<User>();
-            result.Email.ShouldBe(expectedUser.Email);
-            result.Avatar.ShouldBe(expectedUser.Avatar);
+            result.ShouldBeEquivalentTo(expectedUser);
         }
     }
 }

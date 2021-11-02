@@ -131,6 +131,8 @@ namespace Contactr
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            
+            app.UseStaticFiles();
 
             app.UseAuthentication();
 
